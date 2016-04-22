@@ -11,7 +11,7 @@ const nativeEventEmitter = Platform.OS === 'ios' ? NativeAppEventEmitter : Devic
 class Branch {
   constructor() {
     //We listen to the initialization event AND retrieve the result to account for both scenarios in which the results may already be available or be posted at a later point in time
-    nativeEventEmitter.addListener('RNBranch.initSessionFinished', this._onReceivedInitSessionResult);
+    nativeEventEmitter.addListener('RNBranch.initSessionFinished', this._onReceivedInitSessionResult.bind(this));
 
     this._getInitSessionResult((result) => {
       if(!result) { //Not available yet => will come through with the initSessionFinished event
@@ -23,14 +23,7 @@ class Branch {
     this._patientInitSessionObservers = [];
   };
 
-  _onReceivedInitSessionResult(result) {
-    this._initSessionResult = result;
-
-    this._patientInitSessionObservers.forEach((cb) => {
-      cb(result);
-    });
-    this._patientInitSessionObservers = [];
-  };
+  _onReceivedInitSessionResult = this.onReceivedInitSessionResult.bind(this);
 
   _getInitSessionResult(callback) {
     rnBranch.getInitSessionResult(callback);
@@ -77,5 +70,14 @@ class Branch {
     rnBranch.showShareSheet(shareOptions, branchUniversalObject, linkProperties, ({channel, completed, error}) => callback({channel, completed, error}));
   };
 }
+
+function onReceivedInitSessionResult(result) {
+  this._initSessionResult = result;
+
+  this._patientInitSessionObservers.forEach((cb) => {
+    cb(result);
+  });
+  this._patientInitSessionObservers = [];
+};
 
 module.exports = new Branch();
