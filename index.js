@@ -23,7 +23,14 @@ class Branch {
     this._patientInitSessionObservers = [];
   };
 
-  _onReceivedInitSessionResult = this.onReceivedInitSessionResult.bind(this);
+  _onReceivedInitSessionResult(result) {
+    this._initSessionResult = result;
+
+    this._patientInitSessionObservers.forEach((cb) => {
+      cb(result);
+    });
+    this._patientInitSessionObservers = [];
+  };
 
   _getInitSessionResult(callback) {
     rnBranch.getInitSessionResult(callback);
@@ -70,14 +77,5 @@ class Branch {
     rnBranch.showShareSheet(shareOptions, branchUniversalObject, linkProperties, ({channel, completed, error}) => callback({channel, completed, error}));
   };
 }
-
-function onReceivedInitSessionResult(result) {
-  this._initSessionResult = result;
-
-  this._patientInitSessionObservers.forEach((cb) => {
-    cb(result);
-  });
-  this._patientInitSessionObservers = [];
-};
 
 module.exports = new Branch();
