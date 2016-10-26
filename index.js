@@ -11,7 +11,7 @@ const nativeEventEmitter = Platform.OS === 'ios' ? NativeAppEventEmitter : Devic
 class Branch {
   constructor() {
     //We listen to the initialization event AND retrieve the result to account for both scenarios in which the results may already be available or be posted at a later point in time
-    nativeEventEmitter.addListener('RNBranch.initSessionFinished', this._onReceivedInitSessionResult);
+    nativeEventEmitter.addListener('RNBranch.initSessionFinished', this._onReceivedInitSessionResult.bind(this));
 
     this._getInitSessionResult((result) => {
       if(!result) { //Not available yet => will come through with the initSessionFinished event
@@ -23,7 +23,7 @@ class Branch {
     this._patientInitSessionObservers = [];
   };
 
-  _onReceivedInitSessionResult = (result) => {
+  _onReceivedInitSessionResult(result) {
     this._initSessionResult = result;
 
     this._patientInitSessionObservers.forEach((cb) => {
@@ -32,11 +32,11 @@ class Branch {
     this._patientInitSessionObservers = [];
   };
 
-  _getInitSessionResult = (callback) => {
+  _getInitSessionResult(callback) {
     rnBranch.getInitSessionResult(callback);
   };
 
-  getInitSessionResultPatiently = (callback) => {
+  getInitSessionResultPatiently(callback) {
     if(this._initSessionResult) {
       return callback(this._initSessionResult);
     }
@@ -44,41 +44,37 @@ class Branch {
     this._patientInitSessionObservers.push(callback);
   };
 
-  setDebug = () => {
+  setDebug() {
     rnBranch.setDebug();
   };
 
-  getLatestReferringParams = (callback) => {
+  getLatestReferringParams(callback) {
     rnBranch.getLatestReferringParams(callback);
   };
 
-  getFirstReferringParams = (callback) => {
+  getFirstReferringParams(callback) {
     rnBranch.getFirstReferringParams(callback);
   };
 
-  setIdentity = (identity) => {
+  setIdentity(identity) {
     rnBranch.setIdentity(identity);
   };
 
-  logout = () => {
+  logout() {
     rnBranch.logout();
   };
 
-  userCompletedAction = (event, state = {}) => {
+  userCompletedAction(event, state = {}) {
     rnBranch.userCompletedAction(event, state);
   };
 
-  showShareSheet = (shareOptions = {}, branchUniversalObject = {}, linkProperties = {}, callback) => {
+  showShareSheet(shareOptions = {}, branchUniversalObject = {}, linkProperties = {}, callback) {
     callback = callback || (() => {});
     _.defaults(shareOptions, {messageHeader: "Check this out!", messageBody: "Check this cool thing out: "});
     _.defaults(branchUniversalObject, {canonicalIdentifier: "RNBranchSharedObjectId", contentTitle: "Cool Content!", contentDescription: "Cool Content Description", contentImageUrl: ""});
     _.defaults(linkProperties, {feature: 'share', channel: 'RNApp'});
 
     rnBranch.showShareSheet(shareOptions, branchUniversalObject, linkProperties, ({channel, completed, error}) => callback({channel, completed, error}));
-  };
-
-  getShortUrl = () => {
-    return rnBranch.getShortUrl();
   };
 }
 
