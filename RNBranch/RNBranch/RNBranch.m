@@ -155,7 +155,7 @@ RCT_EXPORT_METHOD(getShortUrl:(NSDictionary *)linkPropertiesMap resolver:(RCTPro
                                     andCallback:^(NSString *url, NSError *error) {
                                         if (error) {
                                             NSLog(@"RNBranch::Error: %@", error.localizedDescription);
-                                            reject(@"RNBranch::Error", @"getShortURLWithParams", error);
+                                            reject(error);
                                         }
                                         resolve(url);
                                     }];
